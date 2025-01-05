@@ -24,6 +24,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function("probabilistic eviction", |b| {
         b.iter(|| {
             let x = rng.gen_range(u64::MIN..u64::MAX);
+            
             cache2.get_or_insert(x, || Ok::<u64, Box<dyn std::error::Error>>(x))
         })
     });
