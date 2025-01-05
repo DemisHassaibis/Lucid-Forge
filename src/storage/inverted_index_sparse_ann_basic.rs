@@ -2,6 +2,10 @@ use arcshift::ArcShift;
 use core::array::from_fn;
 use dashmap::DashMap;
 use rayon::prelude::*;
+use std::collections::HashMap;
+use std::hash::{DefaultHasher, Hasher};
+use std::io::SeekFrom;
+use std::thread;
 use std::{path::Path, sync::RwLock};
 
 use std::sync::Arc;
@@ -11,9 +15,9 @@ use crate::models::versioning::Hash;
 use crate::models::{
     buffered_io::BufferManagerFactory,
     cache_loader::NodeRegistry,
-    common::TSHashTable,
-    lazy_load::{LazyItem, LazyItemArray},
-    types::SparseVector,
+    lazy_load::{FileIndex, LazyItem, LazyItemArray},
+    serializer::CustomSerialize,
+    types::{FileOffset, SparseVector}
 };
 
 use super::page::Pagepool;
