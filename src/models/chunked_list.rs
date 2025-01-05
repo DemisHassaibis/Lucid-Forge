@@ -1,105 +1,77 @@
 use super::types::{FileOffset, Item};
 use std::sync::{Arc, RwLock};
 
-pub const CHUNK_SIZE: usize = 5;
-
 pub trait SyncPersist {
     fn set_persistence(&self, flag: bool);
     fn needs_persistence(&self) -> bool;
 }
 
+pub const CHUNK_SIZE: usize = 5;
+
 #[derive(Debug, Clone)]
 pub struct LazyItem<T: Clone> {
-    data: Option<Arc<RwLock<T>>>,
-    offset: Option<FileOffset>,
-    decay_counter: usize,
+    pub data: Option<Item<T>>,
+    pub offset: Option<FileOffset>,
+    pub decay_counter: usize,
+}
+
+#[derive(Debug, Clone)]
+pub struct LazyItemRef<T: Clone> {
+    pub item: Item<LazyItem<T>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct LazyItems<T: Clone> {
+    pub items: Item<Vec<LazyItem<T>>>,
 }
 
 impl<T: Clone> LazyItem<T> {
-    pub fn new(data: T) -> Self {
-        Self {
+    pub fn with_data(data: T) -> Self {
+        LazyItem {
             data: Some(Arc::new(RwLock::new(data))),
             offset: None,
             decay_counter: 0,
         }
     }
-
-    pub fn with_offset(data: T, offset: FileOffset) -> Self {
-        Self {
-            data: Some(Arc::new(RwLock::new(data))),
-            offset: Some(offset),
-            decay_counter: 0,
-        }
-    }
-
-    pub fn get_data(&self) -> Option<T> {
-        self.data.as_ref().map(|arc| arc.read().unwrap().clone())
-    }
-
-    pub fn set_data(&mut self, data: T) {
-        self.data = Some(Arc::new(RwLock::new(data)));
-    }
-
-    pub fn set_offset(&mut self, offset: Option<FileOffset>) {
-        self.offset = offset;
-    }
-
-    pub fn increment_decay(&mut self) {
-        self.decay_counter += 1;
-    }
-
-    pub fn reset_decay(&mut self) {
-        self.decay_counter = 0;
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct LazyItemRef<T: Clone> {
-    item: Arc<RwLock<LazyItem<T>>>,
 }
 
 impl<T: Clone> LazyItemRef<T> {
-    pub fn new(data: T) -> Self {
-        Self {
-            item: Arc::new(RwLock::new(LazyItem::new(data))),
+    pub fn new(item: T) -> Self {
+        LazyItemRef {
+            item: Arc::new(RwLock::new(LazyItem {
+                data: Some(Arc::new(RwLock::new(item))),
+                offset: None,
+                decay_counter: 0,
+            })),
         }
     }
 
-    pub fn with_offset(data: T, offset: FileOffset) -> Self {
-        Self {
-            item: Arc::new(RwLock::new(LazyItem::with_offset(data, offset))),
+    pub fn new_with_lock(item: Item<T>) -> Self {
+        LazyItemRef {
+            item: Arc::new(RwLock::new(LazyItem {
+                data: Some(item),
+                offset: None,
+                decay_counter: 0,
+            })),
         }
     }
 
-    pub fn get_data(&self) -> Option<T> {
-        self.item.read().unwrap().get_data()
+    pub fn get_data(&self) -> Option<Item<T>> {
+        self.item.read().unwrap().data.clone()
     }
 
-    pub fn set_data(&self, data: T) {
-        self.item.write().unwrap().set_data(data);
+    pub fn set_data(&self, new_data: T) {
+        self.item.write().unwrap().data = Some(Arc::new(RwLock::new(new_data)));
     }
 
-    pub fn set_offset(&self, offset: Option<FileOffset>) {
-        self.item.write().unwrap().set_offset(offset);
+    pub fn set_offset(&self, new_offset: Option<FileOffset>) {
+        self.item.write().unwrap().offset = new_offset;
     }
-
-    pub fn increment_decay(&self) {
-        self.item.write().unwrap().increment_decay();
-    }
-
-    pub fn reset_decay(&self) {
-        self.item.write().unwrap().reset_decay();
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct LazyItems<T: Clone> {
-    items: Arc<RwLock<Vec<LazyItem<T>>>>,
 }
 
 impl<T: Clone> LazyItems<T> {
     pub fn new() -> Self {
-        Self {
+        LazyItems {
             items: Arc::new(RwLock::new(Vec::new())),
         }
     }
@@ -120,7 +92,7 @@ impl<T: Clone> LazyItems<T> {
         self.items.read().unwrap().is_empty()
     }
 
-    pub fn iter(&self) -> Vec<LazyItem<T>> {
-        self.items.read().unwrap().clone()
+    pub fn iter(&self) -> impl Iterator<Item = LazyItem<T>> {
+        self.items.read().unwrap().clone().into_iter()
     }
 }
