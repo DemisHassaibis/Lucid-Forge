@@ -212,17 +212,19 @@ def create_transaction(collection_name):
 
 def create_vector_in_transaction(collection_name, transaction_id, vector):
     url = f"{base_url}/collections/{collection_name}/transactions/{transaction_id}/vectors"
-    data = {"id": vector["id"], "values": vector["values"], "metadata": {}}
-    print(f"Request URL: {url}")
-    print(f"Request Data: {json.dumps(data)}")
-    response = requests.post(
-        url, headers=generate_headers(), data=json.dumps(data), verify=False
-    )
-    print(f"Response Status: {response.status_code}")
-    print(f"Response Text: {response.text}")
-    if response.status_code not in [200, 204]:
-        raise Exception(f"Failed to create vector: {response.status_code}")
-    return response.json() if response.text else None
+    data = {
+        "id": vector["id"],
+        "values": vector["values"],
+        "metadata": vector.get("metadata", {})
+    }
+    try:
+        response = requests.post(
+            url, headers=generate_headers(), json=data, verify=False
+        )
+        response.raise_for_status()
+        return response.json() if response.text else None
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Failed to create vector: {str(e)}")
 
 
 def upsert_in_transaction(collection_name, transaction_id, vectors):
