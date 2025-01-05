@@ -22,7 +22,7 @@ This section describes how to initialize a lookup table for `u16` values.
   // Define the lookup table size
   const U16_TABLE_SIZE: usize = u16::MAX as usize + 1;
 
-  // Create a static lookup table for u16 values
+  // Create a native static lookup table for u16 values
   static mut U16_LOOKUP_TABLE: [u32; U16_TABLE_SIZE] = [0; U16_TABLE_SIZE];
 
   #[derive(Debug, Clone)]
