@@ -31,6 +31,25 @@ def login():
 
 
 def create_db(name, description=None, dimension=1024):
+    """
+    Create a database (collection) with the given parameters.
+
+    Args:
+        name (str): The name of the database/collection. Must be a non-empty string.
+        description (str, optional): A brief description of the collection. Defaults to None.
+        dimension (int): The dimensionality of the dense vector. Must be a positive integer. Defaults to 1024.
+
+    Returns:
+        dict: The JSON response from the API if successful.
+        None: If the API request fails.
+    """
+    # Validate parameters
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError("The 'name' parameter must be a non-empty string.")
+    if not isinstance(dimension, int) or dimension <= 0:
+        raise ValueError("The 'dimension' parameter must be a positive integer.")
+
+    # Define request parameters
     url = f"{base_url}/collections"
     data = {
         "name": name,
@@ -44,10 +63,20 @@ def create_db(name, description=None, dimension=1024):
         "metadata_schema": None,
         "config": {"max_vectors": None, "replication_factor": None},
     }
-    response = requests.post(
-        url, headers=generate_headers(), data=json.dumps(data), verify=False
-    )
-    return response.json()
+
+    # Make the API request
+    try:
+        response = requests.post(
+            url,
+            headers=generate_headers(),
+            json=data,  # Use `json` instead of `data` for automatic JSON serialization
+            verify=False,  # Consider setting up proper SSL verification in production
+        )
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx, 5xx)
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error creating database: {e}")
+        return None
 
 def create_explicit_index(name):
     data = {
