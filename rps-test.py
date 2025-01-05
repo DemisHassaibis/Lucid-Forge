@@ -67,8 +67,7 @@ def create_explicit_index(name):
 
     return response.json()
 
-# Function to create database (collection)
-def create_db_old(vector_db_name, dimensions, max_val, min_val):
+def create_db(vector_db_name, dimensions, max_val, min_val):
     url = f"{base_url}/collections"
     data = {
         "vector_db_name": vector_db_name,
@@ -76,24 +75,33 @@ def create_db_old(vector_db_name, dimensions, max_val, min_val):
         "max_val": max_val,
         "min_val": min_val,
     }
-    response = requests.post(
-        url, headers=generate_headers(), data=json.dumps(data), verify=False
-    )
-    return response.json()
+    try:
+        response = requests.post(
+            url, headers=generate_headers(), json=data, verify=False
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
 
-
-# Function to find a database (collection) by Id
 def find_collection(id):
     url = f"{base_url}/collections/{id}"
-
-    response = requests.get(url, headers=generate_headers(), verify=False)
-    return response.json()
-
+    try:
+        response = requests.get(url, headers=generate_headers(), verify=False)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
 
 def create_transaction(collection_name):
     url = f"{base_url}/collections/{collection_name}/transactions"
-    response = requests.post(url, headers=generate_headers(), verify=False)
-    return response.json()
+    try:
+        response = requests.post(url, headers=generate_headers(), verify=False)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
+
 
 
 def create_vector_in_transaction(collection_name, transaction_id, vector):
