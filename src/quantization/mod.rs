@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::storage::Storage;
 
 pub trait Quantization: std::fmt::Debug + Send + Sync {
+    
     fn quantize(
         &self,
         vector: &[f32],
@@ -14,18 +15,24 @@ pub trait Quantization: std::fmt::Debug + Send + Sync {
     ) -> Result<Storage, QuantizationError>;
 
     fn train(&mut self, vectors: &[&[f32]]) -> Result<(), QuantizationError>;
+
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+
 pub enum StorageType {
+
     UnsignedByte,
     SubByte(u8),
     HalfPrecisionFP,
+
 }
 
 #[derive(Debug)]
 pub enum QuantizationError {
+
     InvalidInput(String),
     TrainingFailed,
     Untrained,
+
 }

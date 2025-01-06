@@ -44,7 +44,6 @@ impl Quantization for ScalarQuantization {
     }
 
     fn train(&mut self, _vectors: &[&[f32]]) -> Result<(), QuantizationError> {
-        // Scalar quantization doesn't require training
         Ok(())
     }
 }
