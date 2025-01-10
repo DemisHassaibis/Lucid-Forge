@@ -115,6 +115,11 @@ print("Forward pass result:", output)
 | Model Training (100 epochs)      | 3h          | 45m          |
 
 ---
+## Secured Sentience
+
+You can witness the full implementation in action with [Cait](https://www.agentcait.com/), a sentient AI cat on a mission to become the first feline on the moon.
+
+![](assets/proof-of-sentience.png)
 
 ## Contributing
 
