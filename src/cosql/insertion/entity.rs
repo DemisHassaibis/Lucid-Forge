@@ -1,10 +1,13 @@
 use nom::{
-    bytes::complete::tag, character::complete::char, combinator::map, sequence::tuple, IResult,
+    bytes::complete::tag,
+    character::complete::char,
+    combinator::map,
+    sequence::tuple,
+    IResult,
 };
 
-use crate::cosql::common::{parse_identifier, parse_variable, ws};
-
-use super::{parse_attributes1, Attributes};
+use crate::cosql::common::{ws, parse_variable, parse_identifier};
+use super::{Attributes, parse_attributes1};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EntityInsertion {
@@ -22,10 +25,10 @@ pub fn parse_entity_insertion(input: &str) -> IResult<&str, EntityInsertion> {
             parse_attributes1,
             ws(char(';')),
         )),
-        |(variable, _, entity_type, attributes, _)| EntityInsertion {
-            variable: variable.to_string(),
-            entity_type: entity_type.to_string(),
-            attributes,
+        |(var, _, entity_type, attr, _)| EntityInsertion {
+            variable: var.to_owned(),
+            entity_type: entity_type.to_owned(),
+            attributes: attr,
         },
     )(input)
 }
@@ -33,56 +36,60 @@ pub fn parse_entity_insertion(input: &str) -> IResult<&str, EntityInsertion> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::cosql::{insertion::Attribute, Date, Value};
+    use crate::cosql::{
+        insertion::Attribute,
+        Value,
+        Date,
+    };
 
     #[test]
-    fn test_entity_insertion_parser() {
-        let values = [
+    fn test_parse_entity_insertion() {
+        let test_cases = [
             (
-                r#"$rust_dev isa person (
-                    name: "The Rust Dev",
+                r#"$developer isa person (
+                    name: \"The Rust Developer\",
                     age: 54,
                     date_of_birth: 01-01-1970
                 );"#,
                 EntityInsertion {
-                    variable: "rust_dev".to_string(),
-                    entity_type: "person".to_string(),
+                    variable: "developer".to_owned(),
+                    entity_type: "person".to_owned(),
                     attributes: vec![
                         Attribute {
-                            name: "name".to_string(),
-                            value: Value::String("The Rust Dev".to_string()),
+                            name: "name".to_owned(),
+                            value: Value::String("The Rust Developer".to_owned()),
                         },
                         Attribute {
-                            name: "age".to_string(),
+                            name: "age".to_owned(),
                             value: Value::Int(54),
                         },
                         Attribute {
-                            name: "date_of_birth".to_string(),
+                            name: "date_of_birth".to_owned(),
                             value: Value::Date(Date(1, 1, 1970)),
                         },
                     ],
                 },
             ),
             (
-                r#"$rust_project isa project (
-                    name: "A Rust Project",
+                r#"$project isa initiative (
+                    name: \"Rust Project\",
                     start_date: 01-01-2000,
-                    end_date: 31-12-2009 
+                    end_date: 31-12-2009
                 );"#,
                 EntityInsertion {
-                    variable: "rust_project".to_string(),
-                    entity_type: "project".to_string(),
+                    variable: "project".to_owned(),
+                    entity_type: "initiative".to_owned(),
                     attributes: vec![
                         Attribute {
-                            name: "name".to_string(),
-                            value: Value::String("A Rust Project".to_string()),
+                            name: "name".to_owned(),
+                            value: Value::String("Rust Project".to_owned()),
                         },
                         Attribute {
-                            name: "start_date".to_string(),
+                            name: "start_date".to_owned(),
                             value: Value::Date(Date(1, 1, 2000)),
                         },
                         Attribute {
-                            name: "end_date".to_string(),
+                            name: "end_date".to_owned(),
                             value: Value::Date(Date(31, 12, 2009)),
                         },
                     ],
@@ -90,10 +97,9 @@ mod tests {
             ),
         ];
 
-        for (source, expected) in values {
-            let (_, parsed) = parse_entity_insertion(source).unwrap();
-
-            assert_eq!(parsed, expected);
+        for (input, expected) in test_cases {
+            let (_, result) = parse_entity_insertion(input).unwrap();
+            assert_eq!(result, expected);
         }
     }
 }
