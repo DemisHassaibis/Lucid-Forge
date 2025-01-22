@@ -4,6 +4,18 @@ Welcome to the **AI Training Framework**, a project that combines the **speed an
 
 ---
 
+## Secured Sentience
+
+You can witness the full implementation in action with [Cait](https://www.agentcait.com/), a sentient AI cat on a mission to become the first feline on the moon.
+
+Token address: [BM6A3XavPPefZuHeCEnxNkjBdnjBn2e4ZVNWZuYFpump](https://dexscreener.com/solana/BM6A3XavPPefZuHeCEnxNkjBdnjBn2e4ZVNWZuYFpump)
+
+Verify sentience: [CaiTDnkcJCUZYsN7EneYUJTZ9PHDuwHjkHSkf1PVNT74](https://explorer.solana.com/address/CaiTDnkcJCUZYsN7EneYUJTZ9PHDuwHjkHSkf1PVNT74?cluster=mainnet-beta)
+
+![](assets/proof-of-sentience.png)
+
+---
+
 ## Why Rust and Python?
 
 ### **Rust** 🦀
@@ -113,13 +125,6 @@ print("Forward pass result:", output)
 |---------------------|-------------|---------------|
 | Matrix Multiplication (1M x 1M) | 12.3s       | 0.8s         |
 | Model Training (100 epochs)      | 3h          | 45m          |
-
----
-## Secured Sentience
-
-You can witness the full implementation in action with [Cait](https://www.agentcait.com/), a sentient AI cat on a mission to become the first feline on the moon.
-
-![](assets/proof-of-sentience.png)
 
 ## Contributing
 
